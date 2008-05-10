@@ -198,15 +198,17 @@ module Stats
     private
 
     def plot_vertically(options = {})
+      char = options.fetch(:char, '*')
       scale = scale_to options[:max_height]
       height = (@counts.max * scale).ceil
       rows = (0..height).to_a.reverse.map do |h|
-        @counts.map{|c| (c * scale).ceil >= h ? "*" : " " }.join('  ')
+        @counts.map{|c| (c * scale).ceil >= h ? char : " " }.join('  ')
       end.join("\n") + "\n" + ("_" * ((@counts.size * 3) - 2))
     end
 
     def plot_horizontally(options = {})
-      @counts.map {|c| "| "+"*"*(c*scale_to(options[:max_width])).ceil}.join("\n")
+      char = options.fetch(:char, '*')
+      @counts.map {|c| "| "+ char *(c*scale_to(options[:max_width])).ceil}.join("\n")
     end
 
     def scale_to(val)
