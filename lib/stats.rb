@@ -186,19 +186,36 @@ module Stats
     def []=(i,v)
       @counts[i] = v
     end
-    
+
     def to_s(options = {})
-      if options[:max_width]
-        max = @counts.max
-        if max > options[:max_width]
-          scale = options[:max_width] / max.to_f
-        else
-          scale = 1
-        end
+      if options[:orientation] == :vertical
+        plot_vertically options
       else
-        scale = 1
+        plot_horizontally options
       end
-      @counts.map {|c| "| "+"*"*(c*scale).ceil}.join("\n")
+    end
+
+    private
+
+    def plot_vertically(options = {})
+      scale = scale_to options[:max_height]
+      height = (@counts.max * scale).ceil
+      rows = (0..height).to_a.reverse.map do |h|
+        @counts.map{|c| (c * scale).ceil >= h ? "*" : " " }.join('  ')
+      end.join("\n") + "\n" + ("_" * ((@counts.size * 3) - 2))
+    end
+
+    def plot_horizontally(options = {})
+      @counts.map {|c| "| "+"*"*(c*scale_to(options[:max_width])).ceil}.join("\n")
+    end
+
+    def scale_to(val)
+      if val
+        max = @counts.max
+        max > val ? options[:max_width] / max.to_f : 1
+      else
+        1
+      end
     end
   end
   
