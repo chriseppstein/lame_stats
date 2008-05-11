@@ -199,11 +199,13 @@ module Stats
 
     def plot_vertically(options = {})
       char = options.fetch(:char, '*')
+      hspace = ' ' * options.fetch(:hspace, 2)
       scale = scale_to options[:max_height]
       height = (@counts.max * scale).ceil
       rows = (0..height).to_a.reverse.map do |h|
-        @counts.map{|c| (c * scale).ceil >= h ? char : " " }.join('  ')
-      end.join("\n") + "\n" + ("_" * ((@counts.size * 3) - 2))
+        @counts.map{|c| (c * scale).ceil >= h ? char : " " }.join(hspace)
+      end.join("\n") + "\n" +
+        (options.fetch(:underlinechar, '_') * ((@counts.size * (hspace.size + 1)) - hspace.size))
     end
 
     def plot_horizontally(options = {})
