@@ -188,14 +188,34 @@ module Stats
     end
 
     def to_s(options = {})
-      if options[:orientation] == :vertical
+      rv = if options[:orientation] == :vertical
         plot_vertically options
       else
         plot_horizontally options
       end
+      options[:box] ? box(rv, options) : rv
     end
 
     private
+
+    # Put a box around a histogram plot
+    def box(rv, options = {})
+      lines = rv.split("\n")
+      hspace = ' ' * options.fetch(:hspace, 2)
+      w = if options[:orientation] == :vertical
+        ((@counts.size * (hspace.size + 1)) - hspace.size)
+      else
+        raise "Boxes currently aren't supported for horizontal graphs"
+        [options.fetch(:max_width, @counts.size), @counts.size].min
+      end
+      h = lines.size
+      tb = [0x2500].pack("U") * w
+      rv = [ [0x256d].pack("U") + tb + [0x256e].pack("U") ]
+      e = [0x2502].pack("U")
+      rv += lines.map{|l| e + l + e}
+      rv << [0x2570].pack("U") + tb + [0x256f].pack("U")
+      rv.join("\n")
+    end
 
     def plot_vertically(options = {})
       char = options.fetch(:char, '*')
